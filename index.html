@@ -671,7 +671,6 @@
           <div class="eyebrow">02 — Test Reports</div>
           <h2 class="section-title">Projects</h2>
         </div>
-        <div class="section-note">4 UNITS UNDER TEST · ALL PASS</div>
       </div>
 
       <div class="project-grid">
@@ -799,10 +798,55 @@
           </details>
         </article>
 
-        <!-- PROJECT 3: Night Light -->
+        <!-- PROJECT 3: FPGA Taillight FSM -->
         <article class="project-card">
           <div class="card-top">
             <span class="card-id mono">PRJ-03</span>
+            <span class="status"><span class="dot"></span>Complete</span>
+          </div>
+          <h3 class="card-title">1965 Thunderbird Taillight Controller — Moore FSM on FPGA</h3>
+          <img src="images/fpga-setup.jpg" alt="FPGA DigiLab board wired to a breadboard with six red LEDs for the taillight controller" class="card-photo">
+          <div class="card-tags">
+            <span class="tag">Digital Design</span>
+            <span class="tag">SystemVerilog</span>
+            <span class="tag">FPGA</span>
+          </div>
+          <p class="card-summary">
+            An 8-state Moore machine in SystemVerilog that reproduces the sequential taillights of a
+            1965 Ford Thunderbird — left/right turn signals, brake, and hazard —
+            <strong>with a strict priority order</strong> for when multiple inputs are active at once, synthesized
+            and run live on an FPGA.
+          </p>
+          <details class="expand">
+            <summary>Read full writeup</summary>
+            <div class="expand-body">
+              <p>Course lab for UCSB ECE 152A (Digital Design). The spec called for six LEDs per side that
+                light up one at a time in the turn direction, then reset — modeled as an 8-state Moore
+                machine (<code>S000_000</code> through <code>S111_111</code>) clocked on a 1Hz square wave from
+                a function generator, with an active-low async reset.</p>
+              <p><strong>The real design problem wasn't the sequencing — it was precedence.</strong> Turn
+                signals, brake, and hazard can all be triggered at once, and the spec required a strict
+                override order: hazards beat everything, including both turn signals firing together;
+                brake overrides hazard; a single active turn signal overrides only its own side of the
+                brake lights. That priority logic lives entirely in the FSM's <code>always_comb</code> block
+                ahead of the turn-signal case statements, so hazard/both-turns conditions get checked and
+                short-circuit before turn logic ever runs.</p>
+              <div class="kv">
+                <strong>FSM</strong><span>8-state Moore machine, SystemVerilog, priority-encoded transitions</span>
+                <strong>Hardware</strong><span>UCSB DigiLab FPGA, 6 through-hole LEDs, function generator for the 1Hz clock</span>
+              </div>
+              <p>Verified by driving each input combination and confirming the LED pattern against the
+                truth table before demo — including the ambiguous cases (turn signal + brake, both turn
+                signals at once) where the wrong precedence order would show up immediately as the wrong
+                LEDs lighting.</p>
+            </div>
+          </details>
+        </article>
+
+        <!-- PROJECT 4: Night Light -->
+        <article class="project-card">
+          <div class="card-top">
+            <span class="card-id mono">PRJ-04</span>
             <span class="status"><span class="dot"></span>Complete</span>
           </div>
           <h3 class="card-title">Automatic Night Light</h3>
@@ -826,10 +870,10 @@
           </details>
         </article>
 
-        <!-- PROJECT 4: Bike Lights -->
+        <!-- PROJECT 5: Bike Lights -->
         <article class="project-card">
           <div class="card-top">
-            <span class="card-id mono">PRJ-04</span>
+            <span class="card-id mono">PRJ-05</span>
             <span class="status"><span class="dot"></span>Complete</span>
           </div>
           <h3 class="card-title">Bike Indicator Lights</h3>
