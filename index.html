@@ -897,6 +897,68 @@
           </details>
         </article>
 
+        <!-- PROJECT 6: VLSI Standard Cell Library -->
+        <article class="project-card">
+          <div class="card-top">
+            <span class="card-id mono">PRJ-06</span>
+            <span class="status"><span class="dot"></span>Complete</span>
+          </div>
+          <h3 class="card-title">Transistor-Level Standard Cell Library</h3>
+          <div class="card-tags">
+            <span class="tag">VLSI</span>
+            <span class="tag">SPICE</span>
+            <span class="tag">Python</span>
+          </div>
+          <p class="card-summary">
+            Designed and characterized five standard cells — inverter, NAND2, NOR2, XOR2, and a
+            D flip-flop — <strong>by hand at the transistor level</strong>, writing raw SPICE netlists and
+            simulating them in ngspice. <strong>Live waveform below</strong> — hover the trace.
+          </p>
+
+          <div class="chart-wrap">
+            <div class="chart-tabs">
+              <span class="chart-tab active" style="cursor:default;">INVERTER TRANSIENT RESPONSE</span>
+            </div>
+            <svg class="readout" viewBox="0 0 460 220" id="waveSvg" role="img" aria-label="Inverter input and output voltage vs time"></svg>
+            <div class="chart-caption">VIN (COPPER) DRIVES VOUT (BLUE) LOW/HIGH · 1.8V PROCESS · 50% THRESHOLD MARKS PROPAGATION DELAY</div>
+          </div>
+
+          <details class="expand">
+            <summary>Read full writeup</summary>
+            <div class="expand-body">
+              <p>Each cell was built as a hand-written SPICE netlist using generic Level-1 MOSFET models,
+                sized for a 1.8V process — the inverter's pull-up/pull-down as a single PMOS/NMOS pair, NAND2
+                and NOR2 as series/parallel transistor stacks, and XOR2 and the D flip-flop built from
+                transmission gates. Every netlist was simulated in ngspice and the transient waveforms
+                exported for analysis.</p>
+              <p>To measure propagation delay without doing it by hand for every cell, <code>run_all.py</code>
+                batch-runs ngspice on each netlist, then finds the 50%-threshold crossing time of the input
+                and output waveforms to compute t<sub>pHL</sub> and t<sub>pLH</sub> directly from the simulation
+                data.</p>
+              <table class="spec-table" style="font-size:12.5px; margin:14px 0;">
+                <tbody>
+                  <tr><td class="param" style="width:90px;">Cell</td><td class="detail" style="display:flex; gap:24px;"><span style="width:70px;">t<sub>pHL</sub></span><span>t<sub>pLH</sub></span></td></tr>
+                  <tr><td class="param" style="width:90px;">Inverter</td><td class="detail" style="display:flex; gap:24px;"><span style="width:70px;">62.51 ps</span><span>65.81 ps</span></td></tr>
+                  <tr><td class="param" style="width:90px;">NAND2</td><td class="detail" style="display:flex; gap:24px;"><span style="width:70px;">92.88 ps</span><span>65.80 ps</span></td></tr>
+                  <tr><td class="param" style="width:90px;">NOR2</td><td class="detail" style="display:flex; gap:24px;"><span style="width:70px;">62.51 ps</span><span>99.58 ps</span></td></tr>
+                  <tr><td class="param" style="width:90px;">XOR2</td><td class="detail" style="display:flex; gap:24px;"><span style="width:70px;">76.95 ps</span><span>80.84 ps</span></td></tr>
+                </tbody>
+              </table>
+              <p>The D flip-flop — a master-slave design built from two transmission-gate latches — was
+                functionally verified: Q correctly captures D on the clock edge after tracking down and
+                fixing a feedback-phase wiring bug in the latch stage. Full setup/hold timing
+                characterization on the DFF wasn't completed.</p>
+              <p><strong>What I'd add with more time:</strong></p>
+              <ul>
+                <li>PVT corner sweeps (voltage/temperature variation)</li>
+                <li>Monte Carlo variation analysis on the DFF's setup/hold margins</li>
+                <li>Physical layout in Magic VLSI, then re-simulation with extracted parasitics</li>
+                <li>Formal Liberty (.lib) timing file generation</li>
+              </ul>
+            </div>
+          </details>
+        </article>
+
       </div>
     </div>
   </section>
@@ -1054,6 +1116,85 @@
   });
 
   render('error');
+})();
+</script>
+
+<script>
+(function(){
+  // ---- Real ngspice transient data from inverter.sp (CMOS inverter, 1.8V) ----
+  const t = [0.0,0.103,0.273,0.443,0.613,0.783,0.953,1.092,1.235,1.405,1.575,1.745,1.915,2.085,2.255,2.435,2.605,2.775,2.945,3.115,3.285,3.455,3.625,3.795,3.965,4.135,4.305,4.475,4.645,4.815,4.995,5.165,5.335,5.505,5.675,5.845,6.015,6.155,6.295,6.465,6.635,6.805,6.975,7.145,7.315,7.495,7.665,7.835,8.005,8.175,8.345,8.515,8.685,8.855,9.025,9.195,9.365,9.535,9.705,9.875,10.055,10.225,10.395,10.565,10.735,10.905,11.045,11.185,11.355,11.525,11.695,11.865,12.035,12.205,12.375,12.555,12.725,12.895,13.065,13.235,13.405,13.575,13.745,13.915,14.085,14.255,14.425,14.595,14.765,14.935,15.115,15.285,15.455,15.625,15.795,15.965,16.107,16.245,16.415,16.585,16.755,16.925,17.095,17.265,17.435,17.615,17.785,17.955,18.125,18.295,18.465,18.635,18.805,18.975,19.145,19.315,19.485,19.655,19.825,20.0];
+  const vin = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.665,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,0.81,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.81,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.674,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0];
+  const vout = [1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.417,0.004,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.011,1.756,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.799,0.042,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.45,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8,1.8];
+
+  const svg = document.getElementById('waveSvg');
+  if(!svg) return;
+
+  const W = 460, H = 220;
+  const padL = 30, padR = 16, padT = 14, padB = 26;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const tMax = 20;
+  const vMax = 1.8;
+
+  function x(i){ return padL + (t[i]/tMax) * plotW; }
+  function y(v){ return padT + plotH - (v/vMax) * plotH; }
+
+  let content = '';
+  const rows = 4;
+  for(let r=0; r<=rows; r++){
+    const yy = padT + (r/rows)*plotH;
+    content += `<line class="grid-line" x1="${padL}" y1="${yy}" x2="${W-padR}" y2="${yy}"/>`;
+  }
+  const cols = 5;
+  for(let c=0; c<=cols; c++){
+    const xx = padL + (c/cols)*plotW;
+    content += `<line class="grid-line" x1="${xx}" y1="${padT}" x2="${xx}" y2="${H-padB}"/>`;
+    content += `<text class="axis-label" x="${xx}" y="${H-8}" text-anchor="middle">${(tMax*c/cols).toFixed(0)}ns</text>`;
+  }
+  content += `<text class="axis-label" x="${padL-6}" y="${y(vMax)+4}" text-anchor="end">1.8V</text>`;
+  content += `<text class="axis-label" x="${padL-6}" y="${y(0)+4}" text-anchor="end">0V</text>`;
+
+  // 50% threshold reference line
+  content += `<line class="zero-line" x1="${padL}" y1="${y(0.9)}" x2="${W-padR}" y2="${y(0.9)}"/>`;
+
+  const pathIn = vin.map((v,i)=> (i===0?'M':'L') + x(i).toFixed(1) + ',' + y(v).toFixed(1)).join(' ');
+  const pathOut = vout.map((v,i)=> (i===0?'M':'L') + x(i).toFixed(1) + ',' + y(v).toFixed(1)).join(' ');
+  content += `<path d="${pathIn}" fill="none" stroke="var(--copper)" stroke-width="1.6" opacity="0.85"/>`;
+  content += `<path d="${pathOut}" fill="none" stroke="var(--trace)" stroke-width="2"/>`;
+
+  // sparse hover dots on the output trace only, every ~6th point
+  for(let i=0; i<vout.length; i+=6){
+    content += `<circle class="data-dot" data-i="${i}" cx="${x(i).toFixed(1)}" cy="${y(vout[i]).toFixed(1)}" r="4"/>`;
+  }
+
+  svg.innerHTML = content;
+
+  const dots = svg.querySelectorAll('.data-dot');
+  dots.forEach(dot=>{
+    dot.addEventListener('mouseenter', e=>{
+      const existing = document.getElementById('wave-tooltip-g');
+      if(existing) existing.remove();
+      const i = +e.target.getAttribute('data-i');
+      const cx = +e.target.getAttribute('cx');
+      const cy = +e.target.getAttribute('cy');
+      e.target.classList.add('hovered');
+      const label = `${t[i].toFixed(2)}ns  →  Vout ${vout[i].toFixed(2)}V`;
+      const boxW = label.length * 6.2 + 16;
+      const boxX = Math.min(Math.max(cx - boxW/2, padL), W - padR - boxW);
+      const boxY = Math.max(cy - 34, padT);
+      const tip = document.createElementNS('http://www.w3.org/2000/svg','g');
+      tip.setAttribute('id','wave-tooltip-g');
+      tip.innerHTML = `
+        <rect class="tooltip-bg" x="${boxX}" y="${boxY}" width="${boxW}" height="22" rx="3"/>
+        <text class="tooltip" x="${boxX + boxW/2}" y="${boxY + 15}" text-anchor="middle">${label}</text>
+      `;
+      svg.appendChild(tip);
+    });
+    dot.addEventListener('mouseleave', ()=>{
+      const existing = document.getElementById('wave-tooltip-g');
+      if(existing) existing.remove();
+      dots.forEach(d=>d.classList.remove('hovered'));
+    });
+  });
 })();
 </script>
 
